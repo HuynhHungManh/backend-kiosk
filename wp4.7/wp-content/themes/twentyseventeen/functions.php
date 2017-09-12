@@ -12,6 +12,7 @@
 /**
  * Twenty Seventeen only works in WordPress 4.7 or later.
  */
+include('selector.inc');
 if ( version_compare( $GLOBALS['wp_version'], '4.7-alpha', '<' ) ) {
 	require get_template_directory() . '/inc/back-compat.php';
 	return;
@@ -24,6 +25,81 @@ if ( version_compare( $GLOBALS['wp_version'], '4.7-alpha', '<' ) ) {
  * runs before the init hook. The init hook is too late for some features, such
  * as indicating support for post thumbnails.
  */
+
+
+function add_new_posts_admin_column($column) {
+		$column['hoVaTen'] = 'Họ và tên';
+		$column['soDienThoai'] = 'Số điện thoại';
+		$column['email'] = 'Email';
+		$column['noiDung'] = 'Nội dung';
+
+    return $column;
+}
+
+add_filter('manage_gop_y_posts_columns', 'add_new_posts_admin_column');
+
+add_filter('manage_gop_y_posts_columns','my_manage_columns');
+
+function my_manage_columns( $columns ) {
+	unset(
+		$columns['title'],
+		$columns['date'],
+		$columns['tags'],
+		$columns['cb']
+	);
+  return $columns;
+}
+
+
+
+function my_column_init() {
+  //add_filter( 'manage_posts_columns' , 'my_manage_columns');
+}
+add_action( 'admin_init' , 'my_column_init' );
+
+
+function add_new_posts_admin_column_show_value($column_name) {
+    if ($column_name == 'hoVaTen') {
+				echo get_field('hoVaTen');
+    }
+		if ($column_name == 'soDienThoai') {
+				echo get_field('soDienThoai');
+    }
+		if ($column_name == 'email') {
+				echo get_field('email');
+    }
+		if ($column_name == 'noiDung') {
+				echo get_field('noiDung');
+    }
+}
+
+
+add_action('manage_posts_custom_column', 'add_new_posts_admin_column_show_value', 10, 2);
+
+
+add_action( 'init', 'my_custom_post_type_rest_support', 25 );
+ function my_custom_post_type_rest_support() {
+	 global $wp_post_types;
+	 $post_type_name = 'planet';
+	 if( isset( $wp_post_types[ $post_type_name ] ) ) {
+		 $wp_post_types[$post_type_name]->show_in_rest = true;
+		 $wp_post_types[$post_type_name]->rest_base = $post_type_name;
+		 $wp_post_types[$post_type_name]->rest_controller_class = 'WP_REST_Posts_Controller';
+	 }
+ }
+
+ add_action( 'init', 'my_custom_taxonomy_rest_support', 25 );
+  function my_custom_taxonomy_rest_support() {
+  	global $wp_taxonomies;
+  	$taxonomy_name = 'planet_class';
+  	if ( isset( $wp_taxonomies[ $taxonomy_name ] ) ) {
+  		$wp_taxonomies[ $taxonomy_name ]->show_in_rest = true;
+  		$wp_taxonomies[ $taxonomy_name ]->rest_base = $taxonomy_name;
+  		$wp_taxonomies[ $taxonomy_name ]->rest_controller_class = 'WP_REST_Terms_Controller';
+  	}
+  }
+
+
 function twentyseventeen_setup() {
 	/*
 	 * Make theme available for translation.
@@ -564,3 +640,71 @@ require get_parent_theme_file_path( '/inc/customizer.php' );
  * SVG icons functions and filters.
  */
 require get_parent_theme_file_path( '/inc/icon-functions.php' );
+
+function prefix_get_endpoint_phrase($request) {
+
+		$data=json_decode($request->get_body());
+
+		$postarr=array(
+			'post_type'=> "gop_y",
+			'post_title'=>$data->title,
+			'post_status'=>'publish'
+		);
+
+		$idpost = wp_insert_post($postarr);
+
+		add_post_meta($idpost,'hoVaTen',$data->hoVaTen);
+		add_post_meta($idpost,'email',$data->email);
+		add_post_meta($idpost,'soDienThoai',$data->soDienThoai);
+		add_post_meta($idpost,'noiDung',$data->noiDung);
+
+		$resultm = get_post($idpost);
+    // rest_ensure_response() wraps the data we want to return into a WP_REST_Response, and ensures it will be properly returned.
+    return rest_ensure_response($result);
+}
+
+/**
+ * This function is where we register our routes for our example endpoint.
+ */
+
+ function prefix_get_endpoint_phrase_rating($request) {
+
+		$html = file_get_contents('http://cchc.danang.gov.vn/index.php?option=com_mucdohailong&controller=danhgiacongchuc&task=loadCanbo&format=raw&coquan=150945');
+		$arr = select_elements('#tasks .li_canbo img', $html);
+		$data = array();
+		foreach ($arr as $key => $value) {
+		    $to_encode = array('id' => $key,
+					'name' => select_elements('#tasks .li_canbo .lbl:nth-child(1)', $html)[$key]["text"],
+		      'dOB' => select_elements('#tasks .li_canbo .lbl:nth-child(2)', $html)[$key]["text"],
+		      'image' => $value["attributes"]["src"],
+		      'level' => select_elements('#tasks .li_canbo .lbl:nth-child(3)', $html)[$key]["text"],
+		      'position' => select_elements('#tasks .li_canbo .lbl:nth-child(4)', $html)[$key]["text"],
+		    );
+		    array_push($data,$to_encode);
+		}
+    return $data;
+ }
+
+function prefix_register_example_routes() {
+    // register_rest_route() handles more arguments but we are going to stick to the basics for now.
+    register_rest_route( 'wp/v2', '/gop-y', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'POST',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/danh-gia', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_rating',
+				// 'validate_callback'=>'',
+
+
+    ) );
+}
+
+
+add_action( 'rest_api_init', 'prefix_register_example_routes' );
