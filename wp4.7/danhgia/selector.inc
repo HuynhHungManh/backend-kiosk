@@ -21,11 +21,12 @@ class SelectorDOM {
         $this->xpath = new DOMXpath($data);
     } else {
         $dom = new DOMDocument();
+        $data = mb_convert_encoding($data, 'html-entities', 'utf-8');
         @$dom->loadHTML($data);
         $this->xpath = new DOMXpath($dom);
     }
   }
-  
+
   public function select($selector, $as_array = true) {
     $elements = $this->xpath->evaluate(selector_to_xpath($selector));
     return $as_array ? elements_to_array($elements) : $elements;
@@ -164,6 +165,6 @@ function selector_to_xpath($selector) {
     }
 
     $selector = implode(',', $sub_selectors);
-    
+
     return $selector;
 }
