@@ -692,6 +692,14 @@ function prefix_get_endpoint_phrase($request) {
     return $data;
  }
 
+ function prefix_get_endpoint_phrase_procedure($request) {
+		$ch = curl_init("http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB&dept_id=44230");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		$result = curl_exec($ch);
+    return json_decode($result) ;
+ }
+
 function prefix_register_example_routes() {
     // register_rest_route() handles more arguments but we are going to stick to the basics for now.
     register_rest_route( 'wp/v2', '/gop-y', array(
@@ -701,15 +709,20 @@ function prefix_register_example_routes() {
         'callback' => 'prefix_get_endpoint_phrase',
 				// 'validate_callback'=>'',
     ) );
-
 		register_rest_route( 'wp/v2', '/danh-gia', array(
         // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
         'methods'  => 'GET',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
         'callback' => 'prefix_get_endpoint_phrase_rating',
 				// 'validate_callback'=>'',
+    ) );
 
-
+		register_rest_route( 'wp/v2', '/thu-tuc', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_procedure',
+				// 'validate_callback'=>'',
     ) );
 }
 
