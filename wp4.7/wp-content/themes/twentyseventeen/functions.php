@@ -644,7 +644,6 @@ require get_parent_theme_file_path( '/inc/icon-functions.php' );
 function prefix_get_endpoint_phrase($request) {
 
 		$data=json_decode($request->get_body());
-
 		$postarr=array(
 			'post_type'=> "gop_y",
 			'post_title'=>$data->title,
@@ -667,7 +666,7 @@ function prefix_get_endpoint_phrase($request) {
  * This function is where we register our routes for our example endpoint.
  */
 
- function prefix_get_endpoint_phrase_rating($request) {
+ function prefix_get_endpoint_phrase_rating() {
 		$html = file_get_contents('http://cchc.danang.gov.vn/index.php?option=com_mucdohailong&controller=danhgiacongchuc&task=loadCanbo&format=raw&coquan=150945');
 		$arr = select_elements('#tasks .li_canbo img', $html);
 		$data = array();
@@ -692,13 +691,67 @@ function prefix_get_endpoint_phrase($request) {
     return $data;
  }
 
- function prefix_get_endpoint_phrase_procedure($request) {
+ function prefix_get_endpoint_phrase_procedure() {
 		$ch = curl_init("http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB&dept_id=44230");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		$result = curl_exec($ch);
     return json_decode($result) ;
  }
+
+ function prefix_get_endpoint_phrase_search_procedure($request) {
+	 $data=json_decode($request->get_body());
+   $fields = array(
+      'filter_coquan' => $data->coQuan,
+      'filter_linhvuc' => $data->linhVuc,
+      'filter_tenthutuc' => $data->tenThuTuc,
+   );
+	 $url = 'http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB';
+   $postvars = http_build_query($fields);
+   $ch = curl_init();
+	 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	 curl_setopt($ch, CURLOPT_HEADER, 0);
+   curl_setopt($ch, CURLOPT_URL, $url);
+   curl_setopt($ch, CURLOPT_POST, count($fields));
+	 curl_setopt($ch, CURLOPT_POSTFIELDS, $postvars);
+   $result = curl_exec($ch);
+   $a = json_decode($result);
+   return $a;
+   curl_close($ch);
+ }
+
+ function prefix_get_endpoint_phrase_unit_procedure() {
+	 $html = file_get_contents('http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&controller=thutuchanhchinh&type=1&task=thutuc&format=raw&dept_id=44230');
+	 $arr = select_elements('#filter_coquan',$html);
+	 $data = array();
+
+	 foreach ($arr[0]["children"] as $key => $value) {
+	   $name = $value["text"];
+	   $to_encode = array(
+	     'id' => $key,
+	     'name' => $name,
+	   );
+	   array_push($data,$to_encode);
+	 }
+	 return $data;
+ }
+
+ function prefix_get_endpoint_phrase_field_procedure() {
+	 $html = file_get_contents('http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&controller=thutuchanhchinh&type=1&task=thutuc&format=raw&dept_id=44230');
+	 $arr = select_elements('#filter_linhvuc',$html);
+	 $data = array();
+
+	 foreach ($arr[0]["children"] as $key => $value) {
+	   $name = $value["text"];
+	   $to_encode = array(
+	     'id' => $key,
+	     'name' => $name,
+	   );
+	   array_push($data,$to_encode);
+	 }
+	 return $data;
+ }
+
 
 function prefix_register_example_routes() {
     // register_rest_route() handles more arguments but we are going to stick to the basics for now.
@@ -711,7 +764,7 @@ function prefix_register_example_routes() {
     ) );
 		register_rest_route( 'wp/v2', '/danh-gia', array(
         // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
-        'methods'  => 'GET',
+        'methods'  => 'POST',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
         'callback' => 'prefix_get_endpoint_phrase_rating',
 				// 'validate_callback'=>'',
@@ -722,6 +775,30 @@ function prefix_register_example_routes() {
         'methods'  => 'GET',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
         'callback' => 'prefix_get_endpoint_phrase_procedure',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/tra-cuu-thu-tuc', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'POST',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_search_procedure',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/co-quan', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_unit_procedure',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/linh-vuc', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_field_procedure',
 				// 'validate_callback'=>'',
     ) );
 }
