@@ -791,7 +791,7 @@ function prefix_register_example_routes() {
     ) );
 		register_rest_route( 'wp/v2', '/danh-gia', array(
         // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
-        'methods'  => 'POST',
+        'methods'  => 'GET',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
         'callback' => 'prefix_get_endpoint_phrase_rating',
 				// 'validate_callback'=>'',
