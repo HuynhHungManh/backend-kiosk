@@ -32,7 +32,6 @@ function add_new_posts_admin_column($column) {
 		$column['soDienThoai'] = 'Số điện thoại';
 		$column['email'] = 'Email';
 		$column['noiDung'] = 'Nội dung';
-
     return $column;
 }
 
@@ -691,12 +690,40 @@ function prefix_get_endpoint_phrase($request) {
     return $data;
  }
 
- function prefix_get_endpoint_phrase_procedure() {
+ function prefix_get_endpoint_phrase_procedure($request) {
+		$data=json_decode($request->get_body());
 		$ch = curl_init("http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB&dept_id=44230");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		$result = curl_exec($ch);
-    return json_decode($result) ;
+		$dataAll = json_decode($result, true);
+		$arrAddIndex = array();
+		$index = 0;
+		foreach ($dataAll["data"] as $key => $value) {
+			if(($key+1) %20 !== 0){
+				$arrPage = array(
+					'indexPage' => $index,
+					'data' => $value,
+				);
+				array_push($arrAddIndex,$arrPage);
+			}
+			else{
+				array_push($arrAddIndex,$arrPage);
+				$index++;
+			}
+		}
+		$dataOfPage = array();
+		foreach ($arrAddIndex as $key => $value) {
+			if($value["indexPage"] === $data->index){
+				array_push($dataOfPage,$value);
+			}
+		}
+		$dataOfPage = array(
+		 	 totalPage => $index,
+			 totalRecord => $dataAll[recordsTotal],
+		 	 data => $dataOfPage
+	 );
+		return $dataOfPage;
  }
 
  function prefix_get_endpoint_phrase_search_procedure($request) {
@@ -772,7 +799,7 @@ function prefix_register_example_routes() {
 
 		register_rest_route( 'wp/v2', '/thu-tuc', array(
         // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
-        'methods'  => 'GET',
+        'methods'  => 'POST',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
         'callback' => 'prefix_get_endpoint_phrase_procedure',
 				// 'validate_callback'=>'',
