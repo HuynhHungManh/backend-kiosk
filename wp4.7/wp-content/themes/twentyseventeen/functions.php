@@ -742,9 +742,43 @@ function prefix_get_endpoint_phrase($request) {
    curl_setopt($ch, CURLOPT_POST, count($fields));
 	 curl_setopt($ch, CURLOPT_POSTFIELDS, $postvars);
    $result = curl_exec($ch);
-   $a = json_decode($result);
-   return $a;
-   curl_close($ch);
+	 $dataAll = json_decode($result, true);
+	 if(count($dataAll)>0){
+		 $arrAddIndex = array();
+		 $index = 0;
+		 foreach ($dataAll["data"] as $key => $value) {
+			 if(($key+1) %20 !== 0){
+				 $arrPage = array(
+					 'indexPage' => $index,
+					 'data' => $value,
+				 );
+				 array_push($arrAddIndex,$arrPage);
+			 }
+			 else{
+				 array_push($arrAddIndex,$arrPage);
+				 $index++;
+			 }
+		 }
+		 $dataOfPage = array();
+		 foreach ($arrAddIndex as $key => $value) {
+			 if($value["indexPage"] === 0){
+				 array_push($dataOfPage,$value);
+			 }
+		 }
+		 $dataOfPage = array(
+				totalPage => $index,
+				totalRecord => $dataAll[recordsTotal],
+				data => $dataOfPage
+		);
+		 return $dataOfPage;
+	 }
+	 else{
+		 return $dataOfPage = array(
+ 				totalPage => 1,
+ 				totalRecord => 0,
+ 				data => []
+ 		);
+	 }
  }
 
  function prefix_get_endpoint_phrase_unit_procedure() {
