@@ -712,12 +712,16 @@ function prefix_get_endpoint_phrase($request) {
 				$index++;
 			}
 		}
+		if($index !== $arrAddIndex[$dataAll["recordsTotal"]-1]["indexPage"]){
+			$index--;
+		}
 		$dataOfPage = array();
 		foreach ($arrAddIndex as $key => $value) {
 			if($value["indexPage"] === $data->index){
 				array_push($dataOfPage,$value);
 			}
 		}
+
 		$dataOfPage = array(
 		 	 totalPage => $index,
 			 totalRecord => $dataAll[recordsTotal],
@@ -728,11 +732,19 @@ function prefix_get_endpoint_phrase($request) {
 
  function prefix_get_endpoint_phrase_search_procedure($request) {
 	 $data=json_decode($request->get_body());
+	 if($data->coQuan === "" && $data->linhVuc === ""){
+		 return array(
+					 				totalPage => 1,
+					 				totalRecord => 0,
+					 				data => []
+ 									);
+	 }
    $fields = array(
       'filter_coquan' => $data->coQuan,
       'filter_linhvuc' => $data->linhVuc,
       'filter_tenthutuc' => $data->tenThuTuc,
    );
+
 	 $url = 'http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB';
    $postvars = http_build_query($fields);
    $ch = curl_init();
