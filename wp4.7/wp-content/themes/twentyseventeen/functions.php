@@ -49,8 +49,6 @@ function my_manage_columns( $columns ) {
   return $columns;
 }
 
-
-
 function my_column_init() {
   //add_filter( 'manage_posts_columns' , 'my_manage_columns');
 }
@@ -71,7 +69,20 @@ function add_new_posts_admin_column_show_value($column_name) {
 				echo get_field('noiDung');
     }
 }
+add_action( 'init', function() {
+    remove_post_type_support( 'post', 'editor' );
+    remove_post_type_support( 'page', 'editor' );
+		remove_post_type_support( 'lich_lam_viec', 'editor' );
 
+}, 99);
+
+
+add_action('admin_init', 'remove_all_media_buttons');
+
+function remove_all_media_buttons()
+{
+remove_all_actions('media_buttons');
+}
 
 add_action('manage_posts_custom_column', 'add_new_posts_admin_column_show_value', 10, 2);
 
