@@ -703,11 +703,30 @@ function prefix_get_endpoint_phrase($request) {
 
  function prefix_get_endpoint_phrase_procedure($request) {
 		$data=json_decode($request->get_body());
-		$ch = curl_init("http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB&dept_id=44230");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		$result = curl_exec($ch);
-		$dataAll = json_decode($result, true);
+		if($data->coQuan === null && $data->linhVuc === null && $data->tenThuTuc === null){
+			$ch = curl_init("http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB&dept_id=44230");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			$result = curl_exec($ch);
+			$dataAll = json_decode($result, true);
+		}else{
+			$fields = array(
+	       'filter_coquan' => $data->coQuan,
+	       'filter_linhvuc' => $data->linhVuc,
+	       'filter_tenthutuc' => $data->tenThuTuc,
+	    );
+			$url = 'http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB';
+	    $postvars = http_build_query($fields);
+	    $ch = curl_init();
+	 	  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	 	  curl_setopt($ch, CURLOPT_HEADER, 0);
+	    curl_setopt($ch, CURLOPT_URL, $url);
+	    curl_setopt($ch, CURLOPT_POST, count($fields));
+	 	  curl_setopt($ch, CURLOPT_POSTFIELDS, $postvars);
+	    $result = curl_exec($ch);
+	 	 	$dataAll = json_decode($result, true);
+		}
+
 		$arrAddIndex = array();
 		$index = 1;
 		foreach ($dataAll["data"] as $key => $value) {
@@ -715,10 +734,16 @@ function prefix_get_endpoint_phrase($request) {
 				$arrPage = array(
 					'indexPage' => $index,
 					'data' => $value,
+					'stt' => $key+1
 				);
 				array_push($arrAddIndex,$arrPage);
 			}
 			else{
+				$arrPage = array(
+					'indexPage' => $index,
+					'data' => $value,
+					'stt' => $key+1
+				);
 				array_push($arrAddIndex,$arrPage);
 				$index++;
 			}
@@ -732,18 +757,25 @@ function prefix_get_endpoint_phrase($request) {
 				array_push($dataOfPage,$value);
 			}
 		}
+		$fromPage = $dataOfPage[19][stt];
+
+		if($fromPage === undefined || $fromPage === null){
+			$fromPage = $dataAll[recordsTotal];
+		}
 
 		$dataOfPage = array(
 		 	 totalPage => $index,
 			 totalRecord => $dataAll[recordsTotal],
-		 	 data => $dataOfPage
+		 	 data => $dataOfPage,
+			 fromPage => $dataOfPage[0][stt],
+			 toPage => $fromPage
 	 );
 		return $dataOfPage;
  }
 
  function prefix_get_endpoint_phrase_search_procedure($request) {
 	 $data=json_decode($request->get_body());
-	 if($data->coQuan === "" && $data->linhVuc === ""){
+	 if($data->coQuan === "" && $data->linhVuc === "" && $data->tenThuTuc === ""){
 		 return array(
 					 				totalPage => 1,
 					 				totalRecord => 0,
@@ -771,29 +803,43 @@ function prefix_get_endpoint_phrase($request) {
 		 $arrAddIndex = array();
 		 $index = 1;
 		 foreach ($dataAll["data"] as $key => $value) {
-			 if(($key+1) %20 !== 0){
+			 if(($key+1) % 20 !== 0){
 				 $arrPage = array(
 					 'indexPage' => $index,
 					 'data' => $value,
+					 'stt' => $key+1
 				 );
 				 array_push($arrAddIndex,$arrPage);
 			 }
 			 else{
+				 $arrPage = array(
+					 'indexPage' => $index,
+					 'data' => $value,
+					 'stt' => $key+1
+				 );
 				 array_push($arrAddIndex,$arrPage);
 				 $index++;
 			 }
 		 }
+
 		 $dataOfPage = array();
 		 foreach ($arrAddIndex as $key => $value) {
 			 if($value["indexPage"] === 1){
 				 array_push($dataOfPage,$value);
 			 }
 		 }
+		 $fromPage = $dataOfPage[19][stt];
+
+		 if($fromPage === undefined || $fromPage === null){
+			 $fromPage = $dataAll[recordsTotal];
+		 }
 
 		 $dataOfPage = array(
 				totalPage => $index,
 				totalRecord => $dataAll[recordsTotal],
-				data => $dataOfPage
+				data => $dataOfPage,
+				fromPage => $dataOfPage[0][stt],
+				toPage => $fromPage
 		);
 		 return $dataOfPage;
 	 }
