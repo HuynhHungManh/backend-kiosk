@@ -709,7 +709,8 @@ function prefix_get_endpoint_phrase($request) {
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			$result = curl_exec($ch);
 			$dataAll = json_decode($result, true);
-		}else{
+		}
+		else{
 			$fields = array(
 	       'filter_coquan' => $data->coQuan,
 	       'filter_linhvuc' => $data->linhVuc,
@@ -862,9 +863,11 @@ function prefix_get_endpoint_phrase($request) {
 	   $to_encode = array(
 	     'id' => $key,
 	     'name' => $name,
+			 'value' => $name
 	   );
 	   array_push($data,$to_encode);
 	 }
+	 $data[0][name] = "Tất cả";
 	 return $data;
  }
 
@@ -878,11 +881,14 @@ function prefix_get_endpoint_phrase($request) {
 	   $to_encode = array(
 	     'id' => $key,
 	     'name' => $name,
+			 'value' => $name
 	   );
 	   array_push($data,$to_encode);
 	 }
+	 $data[0][name] = "Tất cả";
 	 return $data;
  }
+
 
 
 function prefix_register_example_routes() {
