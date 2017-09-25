@@ -769,7 +769,8 @@ function prefix_get_endpoint_phrase($request) {
 			 totalRecord => $dataAll[recordsTotal],
 		 	 data => $dataOfPage,
 			 fromPage => $dataOfPage[0][stt],
-			 toPage => $fromPage
+			 toPage => $fromPage,
+			 indexPage => $dataOfPage[0][indexPage]
 	 );
 		return $dataOfPage;
  }
@@ -840,7 +841,8 @@ function prefix_get_endpoint_phrase($request) {
 				totalRecord => $dataAll[recordsTotal],
 				data => $dataOfPage,
 				fromPage => $dataOfPage[0][stt],
-				toPage => $fromPage
+				toPage => $fromPage,
+				indexPage => $dataOfPage[0][indexPage]
 		);
 		 return $dataOfPage;
 	 }
@@ -888,8 +890,6 @@ function prefix_get_endpoint_phrase($request) {
 	 $data[0][name] = "Tất cả";
 	 return $data;
  }
-
-
 
 function prefix_register_example_routes() {
     // register_rest_route() handles more arguments but we are going to stick to the basics for now.
