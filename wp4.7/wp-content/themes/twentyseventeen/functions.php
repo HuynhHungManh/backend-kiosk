@@ -891,6 +891,88 @@ function prefix_get_endpoint_phrase($request) {
 	 return $data;
  }
 
+ function prefix_get_endpoint_phrase_get_all_document(){
+	 $query = new WP_Query( array( 'posts_per_page' => -1 ));
+	 $arr = $query->posts;
+	 $data = array();
+	 foreach ($arr as $key => $value) {
+	 	$to_encode = array(
+	 		'id' => $value->ID,
+			'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
+										  'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+			'author' => $value->post_author,
+			'slug'  => $value->post_name,
+			'title'  => array('rendered'=>$value->post_title),
+			'categories' => array($value->post_parent)
+	 	);
+	 	array_push($data,$to_encode);
+	 }
+	 return $data;
+ }
+
+ function prefix_get_endpoint_phrase_search_document($request){
+		$data=json_decode($request->get_body());
+		$string = trim(strtolower($data->nameDocument));
+		$category_detail=get_the_category( 459 );
+	  $query = new WP_Query( array( 'posts_per_page' => -1 ));
+	  $arr = $query->posts;
+	  $data = array();
+	  foreach ($arr as $key => $value) {
+			 if(strpos($value->post_title, $string) !== false){
+					 $to_encode = array(
+						  'id' => $value->ID,
+						  'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
+						 								 'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+						  'author' => $value->post_author,
+						  'slug'  => $value->post_name,
+						  'title'  => array('rendered'=>$value->post_title),
+						  'categories' => array(get_the_category($value->ID)[0]->term_id)
+						  );
+						  array_push($data,$to_encode);
+				   }
+			}
+	  return $data;
+ }
+
+ function prefix_get_endpoint_phrase_get_document_by_id_categories($request){
+	$args = array(
+	'posts_per_page'   => -1,
+	'offset'           => 0,
+	'category'         => $request["idCat"],
+	'category_name'    => '',
+	'orderby'          => 'date',
+	'order'            => 'DESC',
+	'include'          => '',
+	'exclude'          => '',
+	'meta_key'         => '',
+	'meta_value'       => '',
+	'post_type'        => 'post',
+	'post_mime_type'   => '',
+	'post_parent'      => '',
+	'author'	   => '',
+	'author_name'	   => '',
+	'post_status'      => 'publish',
+	'suppress_filters' => true
+	);
+	$arr = get_posts( $args );
+	$category = get_term( $request["idCat"], 'category' );
+  $data = array();
+  foreach ($arr as $key => $value) {
+ 		 $to_encode = array(
+  	 		'id' => $value->ID,
+  			'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
+  										  'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+  			'author' => $value->post_author,
+  			'slug'  => $value->post_name,
+  			'title'  => array('rendered'=>$value->post_title),
+ 			  'categories' => array((int)$request["idCat"])
+  	 	);
+ 			array_push($data,$to_encode);
+ 	 }
+  return $data;
+ }
+
+
 function prefix_register_example_routes() {
     // register_rest_route() handles more arguments but we are going to stick to the basics for now.
     register_rest_route( 'wp/v2', '/gop-y', array(
@@ -939,6 +1021,31 @@ function prefix_register_example_routes() {
         'callback' => 'prefix_get_endpoint_phrase_field_procedure',
 				// 'validate_callback'=>'',
     ) );
+
+		register_rest_route( 'wp/v2', '/all-document', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_get_all_document',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/posts/search-document', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+        'methods'  => 'POST',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_search_document',
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', 'posts/get-document-id-category/(?P<idCat>\d+)', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+	        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+        'callback' => 'prefix_get_endpoint_phrase_get_document_by_id_categories'
+				// 'validate_callback'=>'',
+    ) );
+
 }
 
 

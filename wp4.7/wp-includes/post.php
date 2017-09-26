@@ -1660,7 +1660,7 @@ function is_post_type_viewable( $post_type ) {
  */
 function get_posts( $args = null ) {
 	$defaults = array(
-		'numberposts' => 5,
+		'numberposts' => 10000,
 		'category' => 0, 'orderby' => 'date',
 		'order' => 'DESC', 'include' => array(),
 		'exclude' => array(), 'meta_key' => '',
