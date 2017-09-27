@@ -601,6 +601,42 @@ add_filter( 'get_header_image_tag', 'twentyseventeen_header_image_tag', 10, 3 );
  * @param array $size       Registered image size or flat array of height and width dimensions.
  * @return string A source size value for use in a post thumbnail 'sizes' attribute.
  */
+
+ function cf_search_join( $join ) {
+     global $wpdb;
+
+     if ( is_search() ) {
+         $join .=' LEFT JOIN '.$wpdb->postmeta. ' ON '. $wpdb->posts . '.ID = ' . $wpdb->postmeta . '.post_id ';
+     }
+
+     return $join;
+ }
+ add_filter('posts_join', 'cf_search_join' );
+
+ function cf_search_where( $where ) {
+   global $pagenow, $wpdb;
+
+    if ( is_search() ) {
+       $where = preg_replace(
+         "/\(\s*".$wpdb->posts.".post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
+         "(".$wpdb->posts.".post_title LIKE $1) OR (".$wpdb->postmeta.".meta_value LIKE $1)", $where );
+     }
+
+    return $where;
+    }
+  add_filter( 'posts_where', 'cf_search_where' );
+
+
+  function cf_search_distinct( $where ) {
+    global $wpdb;
+
+     if ( is_search() ) {
+         return "DISTINCT";
+    }
+
+    return $where;
+  }
+  add_filter( 'posts_distinct', 'cf_search_distinct' );
 function twentyseventeen_post_thumbnail_sizes_attr( $attr, $attachment, $size ) {
 	if ( is_archive() || is_search() || is_home() ) {
 		$attr['sizes'] = '(max-width: 767px) 89vw, (max-width: 1000px) 54vw, (max-width: 1071px) 543px, 580px';
@@ -715,6 +751,7 @@ function prefix_get_endpoint_phrase($request) {
 	       'filter_coquan' => $data->coQuan,
 	       'filter_linhvuc' => $data->linhVuc,
 	       'filter_tenthutuc' => $data->tenThuTuc,
+				 'dept_id' => 44230
 	    );
 			$url = 'http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB';
 	    $postvars = http_build_query($fields);
@@ -788,6 +825,7 @@ function prefix_get_endpoint_phrase($request) {
       'filter_coquan' => $data->coQuan,
       'filter_linhvuc' => $data->linhVuc,
       'filter_tenthutuc' => $data->tenThuTuc,
+			'dept_id'=> 44230
    );
 
 	 $url = 'http://tthc.danang.gov.vn/index.php?option=com_thutuchanhchinh&task=getListThutucFromDB';
