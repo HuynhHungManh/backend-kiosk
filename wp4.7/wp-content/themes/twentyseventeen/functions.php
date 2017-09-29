@@ -936,8 +936,8 @@ function prefix_get_endpoint_phrase($request) {
 	 foreach ($arr as $key => $value) {
 	 	$to_encode = array(
 	 		'id' => $value->ID,
-			'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
-										  'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+			'acf' => array( 'fileBieuMau' => get_field("fileBieuMau", $value->ID ),
+										  'fileBieuMauHuongDan' => get_field("fileBieuMauHuongDan", $value->ID )),
 			'author' => $value->post_author,
 			'slug'  => $value->post_name,
 			'title'  => array('rendered'=>$value->post_title),
@@ -945,6 +945,7 @@ function prefix_get_endpoint_phrase($request) {
 	 	);
 	 	array_push($data,$to_encode);
 	 }
+	 
 	 return $data;
  }
 
@@ -959,8 +960,8 @@ function prefix_get_endpoint_phrase($request) {
 			 if(strpos($value->post_title, $string) !== false){
 					 $to_encode = array(
 						  'id' => $value->ID,
-						  'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
-						 								 'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+						  'acf' => array( 'fileBieuMau' => get_field("fileBieuMau", $value->ID ),
+						 								 'fileBieuMauHuongDan' => get_field("fileBieuMauHuongDan", $value->ID )),
 						  'author' => $value->post_author,
 						  'slug'  => $value->post_name,
 						  'title'  => array('rendered'=>$value->post_title),
@@ -998,8 +999,8 @@ function prefix_get_endpoint_phrase($request) {
   foreach ($arr as $key => $value) {
  		 $to_encode = array(
   	 		'id' => $value->ID,
-  			'acf' => array( 'fileBieuMauSan' => get_field("fileBieuMauSan", $value->ID ),
-  										  'fileBieuMauTrang' => get_field("fileBieuMauTrang", $value->ID )),
+  			'acf' => array( 'fileBieuMau' => get_field("fileBieuMau", $value->ID),
+  										  'fileBieuMauHuongDan' => get_field("fileBieuMauHuongDan", $value->ID)),
   			'author' => $value->post_author,
   			'slug'  => $value->post_name,
   			'title'  => array('rendered'=>$value->post_title),
@@ -1007,6 +1008,8 @@ function prefix_get_endpoint_phrase($request) {
   	 	);
  			array_push($data,$to_encode);
  	 }
+	// $path = "https://docs.google.com/gview?url=http://demo.api.kioskthanhkhe.greenglobal.vn:9973/wp-content/uploads/2017/09/M%E1%BA%ABu-b%E1%BA%A3n-c%C3%B4ng-b%E1%BB%91-h%E1%BB%A3p-quy-ho%E1%BA%B7c-c%C3%B4ng-b%E1%BB%91-ph%C3%B9-h%E1%BB%A3p-quy-%C4%91%E1%BB%8Bnh-an-to%C3%A0n-th%E1%BB%B1c-ph%E1%BA%A9m_Ngh%E1%BB%8B-%C4%91%E1%BB%8Bnh-s%E1%BB%91-382012N%C4%90-CP.docx&embedded=true&zoom=30";
+	// $b64Doc = chunk_split(base64_encode(file_get_contents($path)));
   return $data;
  }
 

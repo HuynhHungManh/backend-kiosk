@@ -1,0 +1,5 @@
+{
+  "require": {
+    "transloadit/php-sdk": "dev-master"
+  }
+}
