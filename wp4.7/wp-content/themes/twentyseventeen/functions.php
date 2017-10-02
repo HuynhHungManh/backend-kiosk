@@ -73,6 +73,7 @@ add_action( 'init', function() {
     remove_post_type_support( 'post', 'editor' );
     remove_post_type_support( 'page', 'editor' );
 		remove_post_type_support( 'lich_lam_viec', 'editor' );
+		remove_post_type_support( 'thong_bao', 'editor' );
 
 }, 99);
 
@@ -945,7 +946,7 @@ function prefix_get_endpoint_phrase($request) {
 	 	);
 	 	array_push($data,$to_encode);
 	 }
-	 
+
 	 return $data;
  }
 
