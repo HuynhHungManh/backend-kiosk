@@ -1009,8 +1009,35 @@ function prefix_get_endpoint_phrase($request) {
   	 	);
  			array_push($data,$to_encode);
  	 }
-	// $path = "https://docs.google.com/gview?url=http://demo.api.kioskthanhkhe.greenglobal.vn:9973/wp-content/uploads/2017/09/M%E1%BA%ABu-b%E1%BA%A3n-c%C3%B4ng-b%E1%BB%91-h%E1%BB%A3p-quy-ho%E1%BA%B7c-c%C3%B4ng-b%E1%BB%91-ph%C3%B9-h%E1%BB%A3p-quy-%C4%91%E1%BB%8Bnh-an-to%C3%A0n-th%E1%BB%B1c-ph%E1%BA%A9m_Ngh%E1%BB%8B-%C4%91%E1%BB%8Bnh-s%E1%BB%91-382012N%C4%90-CP.docx&embedded=true&zoom=30";
-	// $b64Doc = chunk_split(base64_encode(file_get_contents($path)));
+  return $data;
+ }
+
+ function prefix_get_endpoint_phrase_get_all_category(){
+ $categories = get_categories(array(
+            'type'        => 'post',
+            'child_of'    => 0,
+            'parent'      => '',
+            'orderby'     => 'name',
+            'order'       => 'ASC',
+            'hide_empty'  => false,
+            'hierarchical'=> 1,
+            'exclude'     => '',
+            'include'     => '',
+            'number'      => '',
+            'taxonomy'    => 'category',
+            'pad_counts'  => false
+  ));
+ $data = array();
+ foreach ($categories as $key => $value) {
+ 		 $to_encode = array(
+  	 		'id' => $value->term_id,
+ 			'name' => $value->name,
+ 			'slug' => $value->slug,
+ 			'parent' => $value->parent,
+ 			'count' => $value->count
+  	 	);
+ 			array_push($data,$to_encode);
+ 	 }
   return $data;
  }
 
@@ -1080,15 +1107,22 @@ function prefix_register_example_routes() {
 				// 'validate_callback'=>'',
     ) );
 
-		register_rest_route( 'wp/v2', 'posts/get-document-id-category/(?P<idCat>\d+)', array(
+		register_rest_route( 'wp/v2', '/posts/get-document-id-category/(?P<idCat>\d+)', array(
         // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
 	        'methods'  => 'GET',
         // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
-        'callback' => 'prefix_get_endpoint_phrase_get_document_by_id_categories'
+          'callback' => 'prefix_get_endpoint_phrase_get_document_by_id_categories'
+				// 'validate_callback'=>'',
+    ) );
+
+		register_rest_route( 'wp/v2', '/get-all-category', array(
+        // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+	        'methods'  => 'GET',
+        // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+          'callback' => 'prefix_get_endpoint_phrase_get_all_category'
 				// 'validate_callback'=>'',
     ) );
 
 }
-
 
 add_action( 'rest_api_init', 'prefix_register_example_routes' );

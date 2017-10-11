@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress - 4.8.x package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2017-09-29 15:58:17+0000\n"
+"PO-Revision-Date: 2017-10-03 09:08:47+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -185,14 +185,6 @@ msgstr "Mạng hiện cho phép người dùng đăng ký tài khoản."
 msgid "The network currently allows both site and user registrations."
 msgstr "Mạng hiện cho phép đăng ký cả trang web và tài khoản người dùng."
 
-#: wp-signup.php:821
-msgid "Greetings Network Administrator!"
-msgstr "Chào mừng Quản trị mạng!"
-
-#: wp-includes/widgets/class-wp-widget-media.php:145
-msgid "URL to the media file"
-msgstr "URL của tệp tin media."
-
 #: wp-includes/widgets/class-wp-widget-media.php:80
 msgid "Looks like this isn&#8217;t the correct kind of file. Please link to an appropriate file instead."
 msgstr "Định dạng tệp tin không hợp được hỗ trợ. Vui lòng liên kết đến một tệp tin hợp lệ."
@@ -245,9 +237,17 @@ msgstr "Không thể tìm thấy video đó. Kiểm tra <a href=\"%s\">thư vi�
 msgid "A media item."
 msgstr "Một mục đa phương tiện"
 
+#: wp-signup.php:821
+msgid "Greetings Network Administrator!"
+msgstr "Chào mừng Quản trị Viên!"
+
+#: wp-includes/widgets/class-wp-widget-media.php:145
+msgid "URL to the media file"
+msgstr "Đường dẫn của tệp tin media."
+
 #: wp-includes/widgets/class-wp-widget-media.php:138
 msgid "Attachment post ID"
-msgstr "ID của file attachment"
+msgstr "ID của tập tin đính kèm"
 
 #. translators: placeholder is image filename
 #: wp-includes/widgets/class-wp-widget-media-image.php:332
@@ -4626,7 +4626,7 @@ msgstr "Đang cài đặt..."
 
 #: wp-includes/script-loader.php:670
 msgid "Install Now"
-msgstr "Cài đặt ngay bây giờ."
+msgstr "Cài đặt"
 
 #: wp-includes/media.php:3502
 msgid "Drag and drop to reorder media files."
@@ -10997,12 +10997,6 @@ msgstr "Công khai, Sticky"
 msgid "Username"
 msgstr "Tên người dùng"
 
-#: wp-includes/class-wp-customize-manager.php:412
-#: wp-includes/class-wp-customize-manager.php:477
-#: wp-includes/script-loader.php:467
-msgid "Cheatin&#8217; uh?"
-msgstr "Chơi gian hả?"
-
 #: wp-includes/class-wp-editor.php:1074 wp-includes/media-template.php:382
 #: wp-includes/media-template.php:563 wp-includes/revision.php:34
 #: wp-includes/script-loader.php:581
@@ -11067,3 +11061,9 @@ msgstr "Bản nháp"
 #: wp-includes/class-wp-editor.php:1628
 msgid "Y/m/d"
 msgstr "d/m/Y"
+
+#: wp-includes/class-wp-customize-manager.php:412
+#: wp-includes/class-wp-customize-manager.php:477
+#: wp-includes/script-loader.php:467
+msgid "Cheatin&#8217; uh?"
+msgstr "Bạn đang gian lận điều gì đó ?"
