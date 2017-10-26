@@ -827,7 +827,7 @@ class WP_List_Table {
 			$page_links[] = '<span class="tablenav-pages-navspan" aria-hidden="true">&rsaquo;</span>';
 		} else {
 			$page_links[] = sprintf( "<a class='next-page' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
-				esc_url( add_query_arg( 'paged', min( $total_pages, $current+1 ), $current_url ) ),
+				esc_url( add_query_arg( 'paged', min( $total_pages, $current+1 ), 'http://localhost:8080/wp-admin/' ) ),
 				__( 'Next page' ),
 				'&rsaquo;'
 			);

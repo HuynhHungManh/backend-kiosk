@@ -1,0 +1,64 @@
+$id = null;
+
+	if (isset($_GET['id'])) {
+  	$id = $_GET['id'];
+		$querystr = "
+	  SELECT DISTINCT meta_value, post_id
+	  FROM $wpdb->postmeta
+	  WHERE post_id LIKE $id
+		ORDER BY meta_value ASC
+		";
+		$data = $wpdb->get_results( $querystr, OBJECT );
+
+		if ( ! $data ) {
+		    $id = null;
+			}
+		else {
+		    var_dump($data[1]->meta_value);
+		}
+
+	}
+	else {
+	  $id = null;
+	}
+
+	$weu_arconf_buff = array();
+
+	$weu_arconf_buff = get_option( 'weu_sample_template' );
+
+	$template_1 = esc_html($weu_arconf_buff['sample_template_1']);
+
+	$template_2 = esc_html($weu_arconf_buff['sample_template_2']);
+
+	$ar_conf_page = admin_url( "admin.php?page=weu_email_auto_config");
+
+	if($id !== null){
+		echo '<tr>';
+
+		echo '<th>Họ tên người gửi góp ý :</th>
+		<td colspan="3" >
+				<p style="font-weight: bold;">'.$data[0]->meta_value.'</p>
+		 </td>';
+
+		echo '</tr>';
+
+		echo '<tr>';
+
+		echo '<th>Email người gửi góp ý :</th>
+		<td colspan="3" >
+				<p style="font-weight: bold;">'.$data[1]->meta_value.'</p>
+		 </td>';
+
+		echo '</tr>';
+
+		echo '<tr>';
+
+		echo '<th>Content Email</th>
+		<td colspan="3">
+				<div class="content-send-email" style="width:100%; height:auto; background-color: #fff; padding:12px; border:1px solid rgb(169, 169, 169); line-height:25px; box-sizing: border-box;">
+			 			Nội dung : </br> '.$data[3]->meta_value.'
+			 	</div>
+		 </td>';
+
+		echo '</tr>';
+	}

@@ -32,6 +32,7 @@ function add_new_posts_admin_column($column) {
 		$column['soDienThoai'] = 'Số điện thoại';
 		$column['email'] = 'Email';
 		$column['noiDung'] = 'Nội dung';
+		$column['sendMail'] = '';
     return $column;
 }
 
@@ -55,6 +56,32 @@ function my_column_init() {
 add_action( 'admin_init' , 'my_column_init' );
 
 
+if ( !function_exists( 'ts_weu_enqueue_script' )) {
+	function ts_weu_enqueue_script(){
+		wp_enqueue_script( 'wp-email-user-script', plugins_url('../twentyseventeen/themes/plugin/wp-email-users/js/email-admin.js', __FILE__ ), array(), '1.0.0', false );
+	}
+}
+
+add_action( 'admin_enqueue_scripts', 'ts_weu_enqueue_script' );
+
+function getId($email){
+	global $wpdb;
+	$querystr = "
+	SELECT DISTINCT post_id,meta_value,meta_key
+	FROM $wpdb->postmeta
+	";
+	$id = null;
+	$data = $wpdb->get_results( $querystr, OBJECT );
+	foreach ($data as $key => $value) {
+		if($value->meta_key === 'soDienThoai'){
+			if($email === $value->meta_value){
+				$id = $value->post_id;
+			}
+		}
+	}
+	return $id;
+}
+
 function add_new_posts_admin_column_show_value($column_name) {
     if ($column_name == 'hoVaTen') {
 				echo get_field('hoVaTen');
@@ -68,7 +95,13 @@ function add_new_posts_admin_column_show_value($column_name) {
 		if ($column_name == 'noiDung') {
 				echo get_field('noiDung');
     }
+		if ($column_name == 'sendMail') {
+
+			$id =  getId(get_field('soDienThoai'));
+			echo '<input type="button" value="Send Mail" onclick="test('.$id.')"></input>';
+    }
 }
+
 add_action( 'init', function() {
     remove_post_type_support( 'post', 'editor' );
     remove_post_type_support( 'page', 'editor' );
@@ -713,10 +746,39 @@ function prefix_get_endpoint_phrase($request) {
  * This function is where we register our routes for our example endpoint.
  */
 
+ function checkListStaff($name,$arr) {
+	 $name1 = strtolower(str_replace(' ', '', $name));
+	 $id = null;
+
+	 foreach ($arr as $key => $value) {
+		 $name2 = strtolower(str_replace(' ', '', $value['fullname']));
+		 if($name1 === $name2){
+			 $id = $value['id'];
+		 }
+
+	 };
+	 return $id;
+ }
+
  function prefix_get_endpoint_phrase_rating() {
 		$html = file_get_contents('http://cchc.danang.gov.vn/index.php?option=com_mucdohailong&controller=danhgiacongchuc&task=loadCanbo&format=raw&coquan=150945');
+		$ch = curl_init("http://49.156.54.87/index.php?option=com_widget&task=getCanboTiepnhan&donvi_id=150945");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		$result = curl_exec($ch);
+		$dataAll = json_decode($result, true);
+
+		// foreach ($dataAll as $key => $value) {
+		// 		$to_encode = array(
+		// 			'id' => $value['id'],
+		// 			'name' => $value['fullname'],
+		// 		);
+		// 		array_push($dataSV,$to_encode);
+		// };
 		$arr = select_elements('#tasks .li_canbo img', $html);
 		$data = array();
+		$name = select_elements('#tasks .li_canbo .lbl:nth-child(1)', $html)[5]["text"];
+		checkListStaff($name,$dataAll);
 
 		foreach ($arr as $key => $value) {
 		    $name = select_elements('#tasks .li_canbo .lbl:nth-child(1)', $html)[$key]["text"];
@@ -726,7 +788,7 @@ function prefix_get_endpoint_phrase($request) {
 		    $position = str_replace("Chức vụ: ","",select_elements('#tasks .li_canbo .lbl:nth-child(4)', $html)[$key]["text"]);
 
 		    $to_encode = array(
-					'id' => $key,
+					'id' => checkListStaff($name,$dataAll),
 					'name' => $name,
 		      'dOB' => $dOB,
 		      'image' => $image,
@@ -735,6 +797,7 @@ function prefix_get_endpoint_phrase($request) {
 		    );
 		    array_push($data,$to_encode);
 		}
+
     return $data;
  }
 
